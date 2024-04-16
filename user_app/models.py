@@ -33,6 +33,11 @@ class User(AbstractBaseUser):
     name = models.CharField(verbose_name="Имя пользователя", max_length=100)
     user_id = models.IntegerField(verbose_name="ID пользователя", unique=True)
     registration_date = models.DateField(verbose_name="Дата регистрации пользователя", auto_now_add=True)
+    last_login = models.DateTimeField(verbose_name="Последний вход", auto_now=True, null=True, blank=True)
+
+    is_active = models.BooleanField(verbose_name="Активен", default=True)
+    is_staff = models.BooleanField(verbose_name="Сотрудник", default=False)
+    is_admin = models.BooleanField(verbose_name="Администратор", default=False)
 
     objects = UserManager()
 

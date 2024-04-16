@@ -17,6 +17,6 @@ class RegisterView(APIView):
             new_user = User.objects.create(user_id=user_id, name=name, username=username)
             new_user.save()
             return Response({"status": "success"}, status=HTTP_201_CREATED)
-        
-        except Exception as e:
-            return Response({"status": f"error: {e}"}, status=HTTP_400_BAD_REQUEST)
+
+        except:
+            return Response({"status": f"Key is already uses"}, status=HTTP_400_BAD_REQUEST)

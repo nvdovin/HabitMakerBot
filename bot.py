@@ -3,41 +3,32 @@ import logging
 import sys
 from os import getenv
 
-from aiogram import Bot, Dispatcher, html
+from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, StateFilter
 from aiogram.types import Message
-import requests
+from bot_utils.FSM import FSM_CreteNewHabit
+from bot_utils.handlers import storage
 
-# Bot token can be obtained via https://t.me/BotFather
-TOKEN = getenv("BOT_TOKEN")
-
-# All handlers should be attached to the Router (or Dispatcher)
-dp = Dispatcher()
+from bot_texts import keyboard_texts as kb
+from bot_utils import handlers
+from bot_utils import habit_creating_handlers as hch
 
 
-@dp.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
-    """
-    This handler receives messages with `/start` command
-    """
-    await message.answer(f"Hello, {html.bold(message.from_user.full_name)}!")
-    try:
-        data = {
-            "user_id": message.from_user.id,
-            "name": message.from_user.full_name,
-            "username": message.from_user.username
-        }
-        response = requests.post("http://localhost:8000/users/register_user/", json=data)
-        if response.status_code in [200, 201]:
-            await message.answer("User added successfully")
-        else:
-            await message.answer("Failed to add user")
+dp = Dispatcher(storage=storage)
 
-    except Exception as e:
-        await message.answer(f"Failed to add user: {e}")
-        
+# * Хендлеры
+dp.message.register(handlers.command_start_handler, CommandStart()) # ? Хендлер для стартовой команды
+
+dp.message.register(handlers.create_new_habit_handler, F.text == kb.create_new_habit_text) # ? Хендлер создания новой привычки
+dp.message.register(hch.take_habit_title_handler, StateFilter(dp, FSM_CreteNewHabit.habit_title), F.text) # *Название привычки
+dp.message.register(hch.take_habit_description_handler, StateFilter(dp, FSM_CreteNewHabit.habit_description), F.text) # *Описание привычки
+dp.message.register(hch.take_habit_act_time_handler, StateFilter(dp, FSM_CreteNewHabit.habit_act_time), F.text) # *Время выполнения привычки
+
+dp.message.register(handlers.watch_my_habits_handler, F.text == kb.check_my_habits_text) # ? Хендлер просмотра моих привычек
+dp.message.register(handlers.view_all_habits_handler, F.text == kb.view_all_habits_text) # ? Хендлер просмотра привычек всех пользователей
+
 
 @dp.message()
 async def echo_handler(message: Message) -> None:
@@ -56,10 +47,9 @@ async def echo_handler(message: Message) -> None:
 
 async def main() -> None:
     # Initialize Bot instance with default bot properties which will be passed to all API calls
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    bot = Bot(token=getenv("BOT_TOKEN"), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     # And the run events dispatching
     await dp.start_polling(bot)
-
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
