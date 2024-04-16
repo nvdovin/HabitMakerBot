@@ -1,0 +1,4 @@
+env/
+.env
+habit_app/migrations
+users_app/migrations
