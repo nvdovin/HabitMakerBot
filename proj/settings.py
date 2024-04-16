@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
 
     'habit_app',
-    'users_app',
+    'user_app',
 ]
 
 MIDDLEWARE = [
@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'proj.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'habits_db',
+        'NAME': 'habits_db_1',
         'PASSWORD': getenv("POSTGRESQL_PASSWORD"),
         'HOST': 'localhost',
         'PORT': 5432,
@@ -134,4 +134,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODEL = 'users_app.User'
+AUTH_USER_MODEL = 'user_app.User'

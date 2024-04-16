@@ -1,5 +1,5 @@
 from django.urls import include, path
-import users_app.views as v
+import user_app.views as v
 
 
 app_name = "users_app"

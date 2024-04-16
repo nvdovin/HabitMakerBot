@@ -26,7 +26,8 @@ async def command_start_handler(message: Message) -> None:
     try:
         data = {
             "user_id": message.from_user.id,
-            "name": message.from_user.full_name
+            "name": message.from_user.full_name,
+            "username": message.from_user.username
         }
         response = requests.post("http://localhost:8000/users/register_user/", json=data)
         if response.status_code in [200, 201]:

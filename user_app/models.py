@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 # Create your models here.
 
@@ -16,14 +16,37 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
+    
+    def create_superuser(self, user_id, name, password=None):
+        user = self.create_user(
+            user_id=user_id,
+            name=name,
+            password=password
+        )
+        user.is_admin = True
+        user.is_staff = True
+        user.save(using=self._db)
+        return user
 
-class User(AbstractUser):
+class User(AbstractBaseUser):
+    username = models.CharField(verbose_name="Имя пользователя", max_length=100, unique=True)
     name = models.CharField(verbose_name="Имя пользователя", max_length=100)
     user_id = models.IntegerField(verbose_name="ID пользователя", unique=True)
     registration_date = models.DateField(verbose_name="Дата регистрации пользователя", auto_now_add=True)
 
+    objects = UserManager()
+
+    USERNAME_FIELD = 'user_id'
+    REQUIRED_FIELDS = ['name']
+
+    def has_perm(self, perm, obj=None):
+        return True
+
+    def has_module_perms(self, app_label):
+        return True
+
     def __str__(self) -> str:
-        return f"{self.name} {self.surname} with id [{self.user_id}]."
+        return f"{self.name} with id [{self.user_id}]."
 
     class Meta:
         verbose_name = "Пользователь"
