@@ -22,9 +22,10 @@ dp = Dispatcher(storage=storage)
 dp.message.register(handlers.command_start_handler, CommandStart()) # ? Хендлер для стартовой команды
 
 dp.message.register(handlers.create_new_habit_handler, F.text == kb.create_new_habit_text) # ? Хендлер создания новой привычки
-dp.message.register(hch.take_habit_title_handler, StateFilter(dp, FSM_CreteNewHabit.habit_title), F.text) # *Название привычки
-dp.message.register(hch.take_habit_description_handler, StateFilter(dp, FSM_CreteNewHabit.habit_description), F.text) # *Описание привычки
-dp.message.register(hch.take_habit_act_time_handler, StateFilter(dp, FSM_CreteNewHabit.habit_act_time), F.text) # *Время выполнения привычки
+dp.message.register(hch.take_habit_description_handler, StateFilter(dp, FSM_CreteNewHabit.habit_description), F.text) #* Описание привычки
+dp.message.register(hch.take_habit_act_time_handler, StateFilter(dp, FSM_CreteNewHabit.habit_act_time), F.text) #* Время выполнения привычки
+dp.message.register(hch.choose_award_or_habit, StateFilter(dp, FSM_CreteNewHabit.chose_award_or_habit), F.text) #* Выбор награды или привычки
+dp.message.register(hch.take_users_answer, StateFilter(dp, FSM_CreteNewHabit.wait_for_deciding), F.text) #* Ответ пользователя
 
 dp.message.register(handlers.watch_my_habits_handler, F.text == kb.check_my_habits_text) # ? Хендлер просмотра моих привычек
 dp.message.register(handlers.view_all_habits_handler, F.text == kb.view_all_habits_text) # ? Хендлер просмотра привычек всех пользователей

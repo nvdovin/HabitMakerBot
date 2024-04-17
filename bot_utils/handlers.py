@@ -17,7 +17,7 @@ async def command_start_handler(message: Message) -> None:
     """
     This handler receives messages with `/start` command
     """
-    await message.answer(f"Hello, {html.bold(message.from_user.full_name)}!")
+    await message.answer(f"Привет, {html.bold(message.from_user.full_name)}!")
     try:
         data = {
             "user_id": message.from_user.id,
@@ -52,7 +52,8 @@ async def command_start_handler(message: Message) -> None:
 
 # ? Создание новой привычки
 async def create_new_habit_handler(message: Message, state: FSMContext) -> None:    
-    await state.set_state(FSM_CreteNewHabit.habit_title)
+    await message.answer("Давай начнем создание привычки!\nКак назвать новую привычку?", reply_markup=t.ReplyKeyboardRemove())
+    await state.set_state(FSM_CreteNewHabit.habit_description)
 
 
 async def watch_my_habits_handler(message: Message) -> None:
