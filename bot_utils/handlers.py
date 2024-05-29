@@ -1,5 +1,5 @@
 from aiogram import html
-from aiogram.types import Message
+from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 
@@ -13,6 +13,7 @@ import requests
 storage = MemoryStorage()
 
 
+#? Кнопка старт
 async def command_start_handler(message: Message) -> None:
     """
     This handler receives messages with `/start` command
@@ -50,11 +51,12 @@ async def command_start_handler(message: Message) -> None:
         await message.answer(txt.access_denied_message)
 
 
-# ? Создание новой привычки
+#? Создание новой привычки
 async def create_new_habit_handler(message: Message, state: FSMContext) -> None:    
     await state.set_state(FSM_CreteNewHabit.habit_title)
+    await message.answer(txt.new_habit_title, reply_markup=ReplyKeyboardRemove())
 
-
+#? Посмотреть мои привычки
 async def watch_my_habits_handler(message: Message) -> None:
     """
     Handler will check my habits
@@ -62,6 +64,7 @@ async def watch_my_habits_handler(message: Message) -> None:
     await message.answer("Check my habits TEST")
 
 
+#? Посмотреть все привычки
 async def view_all_habits_handler(message: Message) -> None:
     """
     Handler will view all habits
