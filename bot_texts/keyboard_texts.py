@@ -9,11 +9,11 @@ useful_habit_button = "Полезная привычка"
 award_button = "Награда"
 
 # ? Кнопки клавиатуры для перехода в меню привычек
-create_new_habit_button = "Создать новую привычку"
+create_new_habit_button = "Создать полезную привычку"
 view_all_my_habits_button = "Посмотреть мои привычки"
 view_all_habits = "Привычки всех пользователей"
 
 # ? Кнопки клавиатуры для перехода в меню награды
-create_new_award_button = "Создать новую награду"
+create_new_award_button = "Создать награду"
 view_all_my_awards_button = "Посмотреть мои награды"
 view_all_awards = "Награды всех пользователей"

@@ -6,6 +6,7 @@ from .FSM import FSM_CreteNewHabit
 
 from bot_texts import text_messages as txt
 from bot_texts import keyboard_texts as kb
+from bot_utils import keyboards as kbs
 
 import re
 
@@ -66,21 +67,23 @@ async def choose_award_or_habit(message: Message, state: FSMContext) -> None:
 # ? Костыльная валидация выбора кнопки. 
     while True:
         if message.text == kb.useful_habit_button:
-            await message.answer(txt.new_useful_habit, reply_markup=ReplyKeyboardRemove())
+            await message.answer(txt.choose_useful_habit, reply_markup=kbs.habits_keyboard)
             await state.set_state(FSM_CreteNewHabit.habit_useful_habit)
             break
         elif message.text == kb.award_button:
-            await message.answer(txt.new_habit_award, reply_markup=ReplyKeyboardRemove())
+            await message.answer(txt.new_habit_award, reply_markup=kbs.awards_keyboard)
             await state.set_state(FSM_CreteNewHabit.habit_award)
             break
         else:
             await message.answer(txt.invalid_input, reply_markup=ReplyKeyboardRemove())
 
+# * Хендлеры для работы с привычками
 async def take_habit_handler(message: Message, state: FSMContext) -> None:
     """
     Хендлер для работы с привычками
     """
     await state.update_data(act_time=message.text)
+    await message.answer(text=txt.choose_useful_habit)
     
 
 
@@ -89,6 +92,5 @@ async def take_habit_useful_handler(message: Message, state: FSMContext) -> None
     Handler will take habit useful habit
     """
     await state.update_data(act_time=message.text)
+    await message.answer(text=txt.choose_award)
     
-    data = await state.get_data()
-    await message.answer(f"{data}")

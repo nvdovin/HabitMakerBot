@@ -1,4 +1,9 @@
 env/
 .env
 habit_app/migrations
-users_app/migrations
+habit_app/__pycache__
+user_app/__pycache__/
+user_app/migrations/
+bot_texts/__pycache__
+bot_utils/__pycache__
+proj/__pycache__
