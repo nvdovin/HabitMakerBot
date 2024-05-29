@@ -4,15 +4,22 @@ from aiogram.fsm.context import FSMContext
 
 from .FSM import FSM_CreteNewHabit
 
+from bot_texts import text_messages as txt
+from bot_texts import keyboard_texts as kb
 
-storage = MemoryStorage()
+import re
+
+
+state = MemoryStorage()
 
 
 async def take_habit_title_handler(message: Message, state: FSMContext) -> None:
     """
     Handler will take habit title
     """
-    await message.answer("Введи название привычки")
+    await state.update_data(habit_title=message.text)
+        
+    await message.answer(txt.new_habit_description, reply_markup=ReplyKeyboardRemove())
     await state.set_state(FSM_CreteNewHabit.habit_description)
 
 
@@ -20,8 +27,8 @@ async def take_habit_description_handler(message: Message, state: FSMContext) ->
     """
     Handler will take habit description
     """
-    storage.update_data(habit_title=message.text)
-    await message.answer("Введи описание привычки")
+    await state.update_data(habit_description=message.text) # Запись данных в хранилище
+    await message.answer(txt.new_habit_act_time)
     await state.set_state(FSM_CreteNewHabit.habit_act_time)
 
 
@@ -29,34 +36,59 @@ async def take_habit_act_time_handler(message: Message, state: FSMContext) -> No
     """
     Handler will take habit act time
     """
-    storage.update_data(habit_description=message.text)
-    await message.answer("Во сколько нужно выполнить привычку?\nВведи дату в формате ЧЧ:ММ")
-    await state.set_state(FSM_CreteNewHabit.chose_award_or_habit)
+    print(f"[LOG] Присланное сообщение {message.text}")
+    if not re.match(r"[0-2]\d:[0-5]\d", message.text):
+        print('[LOG] Неправильный формат времени')
+        await state.set_state(FSM_CreteNewHabit.invalid_time_format)
+        await message.answer(txt.invalid_time_format)
+        return
+
+    print('[LOG] Пытаюсь выставить клавиатуру')
+    await state.update_data(habit_act_time=message.text)
+    habit_button = KeyboardButton(text=kb.useful_habit_button)
+    award_button = KeyboardButton(text=kb.award_button)
+    keyboard = ReplyKeyboardMarkup(keyboard=[[habit_button, award_button]], resize_keyboard=True)
+    
+    await state.set_state(FSM_CreteNewHabit.choose_award_or_habit)
+    await message.answer(txt.new_habit_choose_award_or_habit, reply_markup=keyboard)
 
 
-async def choose_award_or_habit(message: Message, state: FSMContext) -> None:
-    storage.update_data(act_time=message.text)
-
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(KeyboardButton(text="Награда"), KeyboardButton(text="Привычка"))
-    await state.set_state(FSM_CreteNewHabit.chose_award_or_habit)
-
-    await message.answer("Выбери: награда, или привычка?")
+async def invalid_time_format_handler(message: Message, state: FSMContext) -> None:
+    """Функция-валидатор ввода времени в формате ЧЧ:ММ"""
+    print('[LOG] Отправляю обратно в состояние FSM_CreteNewHabit.habit_act_time')    
+    await state.set_state(FSM_CreteNewHabit.habit_act_time)    
+    await message.answer(txt.invalid_time_format)
+    return
     
 
-async def take_habit_award_handler(message: Message, state: FSMContext) -> None:
+async def choose_award_or_habit(message: Message, state: FSMContext) -> None:
+    await state.update_data(award_or_habit=message.text)
+# ? Костыльная валидация выбора кнопки. 
+    while True:
+        if message.text == kb.useful_habit_button:
+            await message.answer(txt.new_useful_habit, reply_markup=ReplyKeyboardRemove())
+            await state.set_state(FSM_CreteNewHabit.habit_useful_habit)
+            break
+        elif message.text == kb.award_button:
+            await message.answer(txt.new_habit_award, reply_markup=ReplyKeyboardRemove())
+            await state.set_state(FSM_CreteNewHabit.habit_award)
+            break
+        else:
+            await message.answer(txt.invalid_input, reply_markup=ReplyKeyboardRemove())
+
+async def take_habit_handler(message: Message, state: FSMContext) -> None:
     """
-    Handler will take habit award
+    Хендлер для работы с привычками
     """
-    await state.set_state(FSM_CreteNewHabit.habit_award)
-    storage.update_data(act_time=message.text)
-    await message.answer("Enter habit award")
+    await state.update_data(act_time=message.text)
+    
 
 
-async def take_habit_useful_habit_handler(message: Message, state: FSMContext) -> None:
+async def take_habit_useful_handler(message: Message, state: FSMContext) -> None:
     """
     Handler will take habit useful habit
     """
-    await state.set_state(FSM_CreteNewHabit.habit_useful_habit)
-    storage.update_data(act_time=message.text)
-    await message.answer("Enter habit useful habit")
+    await state.update_data(act_time=message.text)
+    
+    data = await state.get_data()
+    await message.answer(f"{data}")
